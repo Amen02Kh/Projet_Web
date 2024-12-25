@@ -46,6 +46,11 @@ class GridModel {
             throw $e;
         }
     }
+    public function getGridData($gridId) {
+        $stmt = $this->pdo->prepare("SELECT * FROM grid_cells WHERE grid_id = ?");
+        $stmt->execute([$gridId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
     public function getGrids($sortBy, $order) {
         $stmt = $this->pdo->prepare("SELECT * FROM crossword_grids ORDER BY $sortBy $order");
         $stmt->execute();
@@ -63,7 +68,23 @@ class GridModel {
         $stmt->execute([$gridId]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+    public function getGridDimensions($gridId) {
+        $stmt = $this->pdo->prepare("SELECT dimensions FROM crossword_grids WHERE id = ?");
+        $stmt->execute([$gridId]);
+        $dimension = $stmt->fetchColumn();
 
+        if (!$dimension) {
+            throw new Exception("Grid not found or dimensions missing.");
+        }
+
+        // Parse dimensions (e.g., "10x10" -> rows = 10, columns = 10)
+        list($rows, $columns) = explode('x', $dimension);
+
+        return [
+            'rows' => (int) $rows,
+            'columns' => (int) $columns,
+        ];
+    }
     // Fetch user progress for a specific grid and user
     public function getUserProgress($userId, $gridId) {
         $stmt = $this->pdo->prepare("SELECT state FROM user_grids WHERE user_id = ? AND grid_id = ?");

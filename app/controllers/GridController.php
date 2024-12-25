@@ -68,7 +68,9 @@ class GridController {
 
         $gridId = $_GET['grid_id'];
         $userId = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : null;
-
+        $gridDimensions = $this->gridModel->getGridDimensions($gridId);
+        $rows = $gridDimensions['rows'];
+        $columns = $gridDimensions['columns'];
         // Fetch grid data and clues
         $gridData = $this->gridModel->getGridCells($gridId);
         $definitions = $this->gridModel->getDefinitions($gridId);

@@ -9,13 +9,11 @@
         body {
             font-family: Arial, sans-serif;
             margin: 0;
-            
             background-color: #f4f4f9;
         }
 
         header {
             text-align: center;
-            
             background-color: #0078d7;
             color: white;
             font-size: 1.2rem;
@@ -46,10 +44,17 @@
             border-radius: 5px;
         }
 
+        .grid-wrapper {
+            display: inline-block;
+            margin: 20px 0;
+            padding-left: 30px;
+            padding-top: 30px;
+            position: relative;
+        }
+
         .grid-container {
             display: grid;
             gap: 2px;
-            margin: 20px 0;
         }
 
         .cell {
@@ -64,6 +69,28 @@
 
         .cell.black {
             background-color: #333;
+        }
+
+        .row-label, .col-label {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            color: #666;
+            
+        }
+
+        .row-label {
+            left: 0;
+            margin-top:2px;
+        }
+
+        .col-label {
+            top: 0;
+            margin-left:2px;
         }
 
         button {
@@ -103,7 +130,9 @@
         <button type="button" onclick="generateGrid()">Generate Grid</button>
         <div class="form-group">
             <label>Grid:</label>
-            <div id="grid-container" class="grid-container"></div>
+            <div class="grid-wrapper">
+                <div id="grid-container" class="grid-container"></div>
+            </div>
         </div>
 
         <div class="form-group">
@@ -123,13 +152,37 @@
 
     <script>
         function generateGrid() {
-            const rows = document.getElementById("rows").value;
-            const cols = document.getElementById("cols").value;
+            const rows = parseInt(document.getElementById("rows").value);
+            const cols = parseInt(document.getElementById("cols").value);
             const container = document.getElementById("grid-container");
+            const wrapper = container.parentElement;
+            
+            // Clear previous grid and labels
             container.innerHTML = "";
+            const oldLabels = wrapper.querySelectorAll('.row-label, .col-label');
+            oldLabels.forEach(label => label.remove());
+
             container.style.gridTemplateColumns = `repeat(${cols}, 30px)`;
             container.style.gridTemplateRows = `repeat(${rows}, 30px)`;
+            
+            // Add column labels (A, B, C, ...)
+            for (let c = 0; c < cols; c++) {
+                const label = document.createElement("div");
+                label.classList.add("col-label");
+                label.textContent = String.fromCharCode(65 + c);
+                label.style.left = `${30 * c + 30}px`;
+                wrapper.appendChild(label);
+            }
 
+            // Add row labels (1, 2, 3, ...)
+            for (let r = 0; r < rows; r++) {
+                const label = document.createElement("div");
+                label.classList.add("row-label");
+                label.textContent = r + 1;
+                label.style.top = `${30 * r + 30}px`;
+                wrapper.appendChild(label);
+            }
+            
             for (let r = 1; r <= rows; r++) {
                 for (let c = 1; c <= cols; c++) {
                     const cell = document.createElement("div");
@@ -171,7 +224,6 @@
         }
 
         document.querySelector("form").addEventListener("submit", saveGridData);
-        
     </script>
 </body>
 </html>
