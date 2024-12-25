@@ -1,44 +1,65 @@
 <?php
-// Start session
 session_start();
 
-// Load configuration and dependencies
-require_once '../config/config.php';
-
-// Autoloader for controllers, models, etc.
-spl_autoload_register(function ($class) {
-    $path = "../app/";
-    if (file_exists($path . "controllers/$class.php")) {
-        require_once $path . "controllers/$class.php";
-    } elseif (file_exists($path . "models/$class.php")) {
-        require_once $path . "models/$class.php";
+// Check if the user is already logged in and redirect accordingly
+if (isset($_SESSION['role'])) {
+    if ($_SESSION['role'] === 'admin') {
+        header("Location: admin_dashboard.php");
+        exit;
+    } elseif ($_SESSION['role'] === 'registered') {
+        header("Location: dashboard.php");
+        exit;
     }
-});
-
-// Parse URL for routing
-$requestUri = trim($_SERVER['REQUEST_URI'], '/');
-$scriptName = str_replace('/public', '', $_SERVER['SCRIPT_NAME']);
-$route = str_replace($scriptName, '', $requestUri);
-$route = trim($route, '/');
-$routeParts = explode('/', $route);
-
-// Determine controller and action
-$controllerName = !empty($routeParts[0]) ? ucfirst($routeParts[0]) . 'Controller' : 'HomeController';
-$actionName = !empty($routeParts[1]) ? $routeParts[1] : 'index';
-
-// Route the request
-try {
-    if (class_exists($controllerName)) {
-        $controller = new $controllerName();
-        if (method_exists($controller, $actionName)) {
-            $controller->$actionName();
-        } else {
-            throw new Exception("Action '$actionName' not found in $controllerName.");
-        }
-    } else {
-        throw new Exception("Controller '$controllerName' not found.");
-    }
-} catch (Exception $e) {
-    http_response_code(404);
-    echo $e->getMessage();
 }
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crossword Platform</title>
+    <link rel="stylesheet" href="style.css"> <!-- Link to your CSS -->
+</head>
+<style>
+    .action-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.btn {
+    display: inline-block;
+    padding: 1rem 2rem;
+    font-size: 1rem;
+    font-weight: bold;
+    text-align: center;
+    color: white;
+    background-color: #0078d7;
+    border-radius: 5px;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+}
+
+.btn:hover {
+    background-color: #005bb5;
+}
+
+</style>
+<body>
+    <header>
+        <h1>Welcome to the Crossword Platform</h1>
+    </header>
+    <div class="container">
+        <div class="action-buttons">
+            <a href="register.php" class="btn">Register</a>
+            <a href="login.php" class="btn">Login</a>
+            <a href="view_grids.php" class="btn">Continue as Anonymous</a>
+        </div>
+    </div>
+    <footer>
+        <p>&copy; 2024 Crossword Puzzle Platform</p>
+    </footer>
+</body>
+</html>
