@@ -3,16 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crossword Platform</title>
-    <link rel="stylesheet" href="/public/style.css"> <!-- Link to your CSS -->
+    <title>Dashboard - CruciWeb</title>
+    <link rel="stylesheet" href="/web/public/style.css">
     <style>
-        .action-buttons {
-            display: flex;
-            justify-content: center;
-            gap: 1rem;
-            margin-top: 2rem;
-        }
-
         .btn {
             display: inline-block;
             padding: 1rem 2rem;
@@ -24,26 +17,29 @@
             border-radius: 5px;
             text-decoration: none;
             transition: background-color 0.3s ease;
+            margin: 1rem;
         }
-
         .btn:hover {
             background-color: #005bb5;
+        }
+        .container {
+            text-align: center;
+            margin-top: 50px;
         }
     </style>
 </head>
 <body>
     <header>
-        <h1>Welcome to the Crossword Platform</h1>
+        <h1>CruciWeb - Your Crossword Hub</h1>
     </header>
     <div class="container">
-        <div class="action-buttons">
-            <a href="/user/register" class="btn">Register</a>
-            <a href="/user/login" class="btn">Login</a>
-            <a href="/grids/view" class="btn">Continue as Anonymous</a>
-        </div>
+        <h1>Welcome, <?= htmlspecialchars($username); ?>!</h1>
+        <p>What would you like to do today?</p>
+        <a href="/web/public/grid/create" class="btn">Create a Crossword Grid</a>
+        <a href="/web/public/grid/viewGrids" class="btn">View Published Grids</a>
+        <a href="/web/public/grid/viewProgress" class="btn">View In Progress Grids</a>
+        <a href="/web/public/user/logout" class="btn">Logout</a>
+
     </div>
-    <footer>
-        <p>&copy; 2024 Crossword Puzzle Platform</p>
-    </footer>
 </body>
 </html>

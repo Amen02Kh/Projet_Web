@@ -1,59 +1,10 @@
-<?php
-require 'config.php'; // Database configuration
-
-session_start(); // Start session to access user data
-
-// Check if the user is logged in
-if (!isset($_SESSION['user_id'])) {
-    echo "<script>alert('You need to log in to create a grid.'); window.location.href = 'login.php';</script>";
-    exit;
-}
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Handle grid creation
-    $gridName = htmlspecialchars($_POST['grid_name']);
-    $rows = (int)$_POST['rows'];
-    $cols = (int)$_POST['cols'];
-    $horizontalClues = explode(",", $_POST['horizontal_clues']); // Convert comma-separated clues to an array
-    $verticalClues = explode(",", $_POST['vertical_clues']);     // Convert comma-separated clues to an array
-    $gridData = json_decode($_POST['grid_data'], true);          // Grid cell data as JSON
-    $createdBy = $_SESSION['user_id'];                          // Get the logged-in user's ID
-
-    try {
-        // Insert grid into `crossword_grids`
-        $stmt = $pdo->prepare("INSERT INTO crossword_grids (name, dimensions, created_by) VALUES (?, ?, ?)");
-        $stmt->execute([$gridName, "{$rows}x{$cols}", $createdBy]);
-        $gridId = $pdo->lastInsertId();
-
-        // Insert grid cells into `grid_cells`
-        $stmt = $pdo->prepare("INSERT INTO grid_cells (grid_id, row_num, col_num, is_black, solution) VALUES (?, ?, ?, ?, ?)");
-        foreach ($gridData as $cell) {
-            $stmt->execute([$gridId, $cell['row'], $cell['col'], $cell['is_black'], $cell['solution']]);
-        }
-
-        // Insert definitions into `definitions`
-        $stmt = $pdo->prepare("INSERT INTO definitions (grid_id, orientation, row_or_col, definition) VALUES (?, ?, ?, ?)");
-        foreach ($horizontalClues as $key => $clue) {
-            $stmt->execute([$gridId, 'horizontal', $key + 1, htmlspecialchars(trim($clue))]);
-        }
-        foreach ($verticalClues as $key => $clue) {
-            $stmt->execute([$gridId, 'vertical', $key + 1, htmlspecialchars(trim($clue))]);
-        }
-
-        echo "<script>alert('Grid created successfully!'); window.location.href = '#';</script>";
-    } catch (PDOException $e) {
-        echo "<script>alert('Error creating the grid: " . $e->getMessage() . "');</script>";
-    }
-}
-?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Create Crossword Grid</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="/web/public/style.css">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -136,7 +87,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         Create Crossword Grid
     </header>
 
-    <form method="post">
+    <form method="post" action="/web/public/grid/create">
         <div class="form-group">
             <label for="grid_name">Grid Name:</label>
             <input type="text" id="grid_name" name="grid_name" required>
@@ -149,7 +100,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <label for="cols">Columns:</label>
             <input type="number" id="cols" name="cols" min="5" max="20" value="10" required>
         </div>
-
+        <button type="button" onclick="generateGrid()">Generate Grid</button>
         <div class="form-group">
             <label>Grid:</label>
             <div id="grid-container" class="grid-container"></div>
@@ -165,9 +116,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
 
         <input type="hidden" id="grid_data" name="grid_data">
-        <button type="button" onclick="generateGrid()">Generate Grid</button>
+        
         <button type="submit">Save Grid</button>
-        <button type="button" onclick="window.location.href='dashboard.php'">Return</button>
+        <button type="button" onclick="window.location.href='/web/public/dashboard'">Return</button>
     </form>
 
     <script>
